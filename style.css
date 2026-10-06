@@ -64,6 +64,39 @@ h1 {
     border-color: #3498db;
 }
 
+.task-options-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    width: 100%;
+}
+
+.task-option {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.task-option label {
+    margin-bottom: 2px;
+    color: #666;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.task-option input,
+.task-option select {
+    width: 100%;
+    min-width: 0;
+    height: 38px;
+}
+
+#due-date-input {
+    padding-right: 4px;
+    padding-left: 4px;
+}
+
 #add-btn {
     padding: 10px 18px;
     background-color: #3498db;

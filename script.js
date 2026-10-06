@@ -61,8 +61,16 @@ async function addTask() {
 async function toggleTask(event, id, currentStatus) {
     event.stopPropagation(); 
     
-    const newStatus = !currentStatus;
+    const existingTask = currentTasksData.find(task => task.id === id);
+    const previousStatus = existingTask ? existingTask.is_completed : currentStatus;
+    const previousFinishedAt = existingTask?.finished_at ?? null;
+    const newStatus = !previousStatus;
     const finishedAtValue = newStatus ? new Date().toISOString() : null;
+
+    currentTasksData = currentTasksData.map(task => task.id === id
+        ? { ...task, is_completed: newStatus, finished_at: finishedAtValue }
+        : task);
+    renderTasks(currentTasksData);
 
     const { error } = await supabaseClient
         .from('tasks')
@@ -74,13 +82,12 @@ async function toggleTask(event, id, currentStatus) {
 
     if (error) {
         console.error('Error updating task:', error);
-        return;
+        currentTasksData = currentTasksData.map(task => task.id === id
+            ? { ...task, is_completed: previousStatus, finished_at: previousFinishedAt }
+            : task);
+        renderTasks(currentTasksData);
+        window.alert(`Could not save this task update: ${error.message || error.code || 'Unknown Supabase error'}`);
     }
-
-    currentTasksData = currentTasksData.map(task => task.id === id
-        ? { ...task, is_completed: newStatus, finished_at: finishedAtValue }
-        : task);
-    renderTasks(currentTasksData);
 }
 
 // 4. Delete task
