@@ -74,7 +74,13 @@ async function toggleTask(event, id, currentStatus) {
 
     if (error) {
         console.error('Error updating task:', error);
+        return;
     }
+
+    currentTasksData = currentTasksData.map(task => task.id === id
+        ? { ...task, is_completed: newStatus, finished_at: finishedAtValue }
+        : task);
+    renderTasks(currentTasksData);
 }
 
 // 4. Delete task
@@ -143,8 +149,8 @@ function renderTasks(tasks) {
         if (a.is_completed !== b.is_completed) return a.is_completed ? 1 : -1;
         if (isSortedByPriority) {
             const weights = { high: 1, medium: 2, low: 3 };
-            const pA = weights[a.priority || 'medium'] || 2;
-            const pB = weights[b.priority || 'medium'] || 2;
+            const pA = weights[a.priority || 'medium'] ?? 2;
+            const pB = weights[b.priority || 'medium'] ?? 2;
             if (pA !== pB) return pA - pB;
         }
         return new Date(b.created_at) - new Date(a.created_at);
@@ -182,9 +188,10 @@ function renderTasks(tasks) {
             </div>
         `;
 
-        // Click target for toggling completion
-        const clickTarget = li.querySelector('.task-click-target');
-        clickTarget.addEventListener('click', (e) => {
+        // Toggle completion from the task row, leaving its controls independent.
+        const mainRow = li.querySelector('.task-main-row');
+        mainRow.addEventListener('click', (e) => {
+            if (e.target.closest('button')) return;
             toggleTask(e, item.id, item.is_completed);
         });
 
