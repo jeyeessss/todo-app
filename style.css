@@ -33,8 +33,21 @@ h1 {
 
 .input-container {
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+    gap: 8px;
     margin-bottom: 20px;
+}
+
+.input-container input[type="text"],
+.input-container input[type="datetime-local"]{
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background: #fff;
+    outline: none;
 }
 
 #task-input {
@@ -82,7 +95,99 @@ h1 {
     font-size: 15px;
 }
 
-#task-list li.completed span {
+/* Priority Dropdown Styling */
+#priority-select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #fff;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Priority Badges */
+.priority-badge {
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    margin-left: 8px;
+}
+
+.priority-high {
+    background-color: #ffebee;
+    color: #e53935;
+    border: 1px solid #ffcdd2;
+}
+
+.priority-medium {
+    background-color: #fff8e1;
+    color: #f57c00;
+    border: 1px solid #ffe082;
+}
+
+.priority-low {
+    background-color: #e8f5e9;
+    color: #43a047;
+    border: 1px solid #c8e6c9;
+}
+
+/* Smooth Accordion Details Drawer */
+.task-details {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease;
+    font-size: 13px;
+    color: #666;
+    background: #f1f5f9;
+    border-radius: 6px;
+    margin-top: 0;
+    padding: 0 10px;
+}
+
+li.expanded .task-details {
+    max-height: 120px;
+    padding: 8px 10px;
+    margin-top: 8px;
+}
+
+/* Main task row layout */
+#task-list li {
+    flex-direction: column;
+    align-items: stretch;
+    cursor: pointer;
+}
+#task-list li.completed {
+    opacity: 0.7;
+    background-color: #f8f9fa;
+}
+
+#task-list li.completed .task-text-span {
     text-decoration: line-through;
     color: #95a5a6;
+}
+
+.task-main-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Countdown & Metadata Badges */
+.countdown-badge {
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: #e2e8f0;
+    color: #475569;
+    margin-left: 6px;
+}
+
+.countdown-overdue {
+    background-color: #fee2e2;
+    color: #dc2626;
 }

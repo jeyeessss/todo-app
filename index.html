@@ -6,25 +6,45 @@
     <title>To-Do</title>
     <link rel="stylesheet" href="style.css">
     <!-- Supabase JS Client Library -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 <body>
      <div class="app-container">
         <h1>My Tasks</h1>
 
-        <div class="input-container">
+        <div class="input-container" style="display: flex; flex-direction: column; gap: 8px;">
             <input type="text" id="task-input" placeholder="What needs to be done?">
+            
+            <!-- Controls Row for Priority, Date, and Add Button -->
+            <div style="display: flex; gap: 8px; align-items: flex-end; width: 100%;">
+    <!-- Priority Dropdown with Label -->
+    <div style="flex: 1; display: flex; flex-direction: column;">
+        <label for="priority-select" style="font-size: 11px; color: #666; margin-bottom: 2px; font-weight: bold;">Select Priority:</label>
+        <select id="priority-select" style="width: 100%; height: 38px;">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+        </select>
+    </div>
+
+                <!-- Due Date Input with clear container styling -->
+                <div style="flex: 2; display: flex; flex-direction: column;">
+                    <label for="due-date-input" style="font-size: 11px; color: #666; margin-bottom: 2px; font-weight: bold;">Select Due Date:</label>
+                    <input type="datetime-local" id="due-date-input" style="width: 100%;">
+                </div>
+            </div>
             <button id="add-btn">Add</button>
         </div>
 
-     <ul id="task-list">
-        <!--Task Items-->
-     </ul>
+        <!-- Sort Button -->
+        <div style="margin-bottom: 15px; text-align: right;">
+            <button id="sort-priority-btn" style="padding: 6px 12px; background-color: #e67e22; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">Sort: High to Low 🔽</button>
+        </div>
+
+        <ul id="task-list">
+            <!--Task Items-->
+        </ul>
      </div>
-
-
-
 
      <script src="script.js"></script>
 </body>
