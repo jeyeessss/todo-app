@@ -244,7 +244,16 @@ function getCountdownText(dueDateISO) {
     
     if (days > 0) return `<span class="countdown-badge">Due in ${days}d</span>`;
     if (hours > 0) return `<span class="countdown-badge">Due in ${hours}h</span>`;
-    return `<span class="countdown-badge countdown-overdue">Due soon</span>`;
+    return `<span class="countdown-badge countdown-overdue short-countdown" data-due="${dueDateISO}">${getShortCountdownText(dueDateISO)}</span>`;
+}
+
+function getShortCountdownText(dueDateISO) {
+    const diff = new Date(dueDateISO) - new Date();
+    if (diff <= 0) return 'Overdue';
+
+    const minutes = Math.floor(diff / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    return `Due in ${minutes}m ${seconds}s`;
 }
 
 // Helper: Detailed live remaining time string for the drawer
@@ -346,6 +355,10 @@ function renderTasks(tasks) {
 // Setup live updating interval for timers every second
 if (countdownInterval) clearInterval(countdownInterval);
 countdownInterval = setInterval(() => {
+    document.querySelectorAll('.short-countdown').forEach(el => {
+        el.textContent = getShortCountdownText(el.getAttribute('data-due'));
+    });
+
     document.querySelectorAll('.live-countdown').forEach(el => {
         const dueDate = el.getAttribute('data-due');
         el.innerHTML = `<strong>Remaining:</strong> ${getLiveRemainingTime(dueDate)}`;
