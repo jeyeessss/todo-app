@@ -24,6 +24,120 @@ body {
     max-width: 400px;
 }
 
+[hidden] {
+    display: none !important;
+}
+
+.auth-panel {
+    padding: 8px 0;
+}
+
+.auth-panel h1 {
+    margin-bottom: 8px;
+}
+
+.auth-intro {
+    margin-bottom: 20px;
+    color: #66727a;
+    font-size: 14px;
+    text-align: center;
+}
+
+.auth-providers {
+    display: grid;
+    gap: 8px;
+}
+
+.auth-provider-btn,
+.auth-submit-btn {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 14px;
+    border: 1px solid #cbd4da;
+    border-radius: 7px;
+    background: #fff;
+    color: #26343d;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.auth-provider-btn:hover {
+    background: #f3f6f8;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0;
+    color: #7a858c;
+    font-size: 12px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    height: 1px;
+    flex: 1;
+    background: #dce2e6;
+    content: '';
+}
+
+.auth-form {
+    display: grid;
+    gap: 7px;
+}
+
+.auth-form label {
+    color: #4d5b63;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.auth-form input {
+    width: 100%;
+    min-height: 40px;
+    margin-bottom: 5px;
+    padding: 9px 11px;
+    border: 1px solid #cbd4da;
+    border-radius: 7px;
+    background: #fff;
+    color: #26343d;
+    font-size: 15px;
+}
+
+.auth-message {
+    min-height: 18px;
+    color: #a23b31;
+    font-size: 13px;
+}
+
+.auth-submit-btn {
+    border-color: #2980b9;
+    background: #3498db;
+    color: #fff;
+}
+
+.auth-submit-btn:hover {
+    background: #2980b9;
+}
+
+.auth-mode-toggle {
+    display: block;
+    margin: 14px auto 0;
+    border: 0;
+    background: transparent;
+    color: #2675a5;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.auth-provider-btn:disabled,
+.auth-submit-btn:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
 h1 {
     font-size: 24px;
     margin-bottom: 20px;
@@ -166,6 +280,16 @@ h1 {
     flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 15px;
+}
+
+#sign-out-btn {
+    padding: 6px 10px;
+    border: 1px solid #d6dde1;
+    border-radius: 6px;
+    background: #fff;
+    color: #43535c;
+    cursor: pointer;
+    font-size: 12px;
 }
 
 #enable-notifications-btn {
@@ -327,6 +451,33 @@ li.expanded .task-details {
 
 .dark-mode h1 {
     color: #edf2f5;
+}
+
+.dark-mode .auth-intro,
+.dark-mode .auth-divider,
+.dark-mode .auth-form label {
+    color: #c0cbd1;
+}
+
+.dark-mode .auth-divider::before,
+.dark-mode .auth-divider::after {
+    background: #48545c;
+}
+
+.dark-mode .auth-provider-btn,
+.dark-mode .auth-form input,
+.dark-mode #sign-out-btn {
+    border-color: #48545c;
+    background: #242c31;
+    color: #edf2f5;
+}
+
+.dark-mode .auth-provider-btn:hover {
+    background: #2e383e;
+}
+
+.dark-mode .auth-mode-toggle {
+    color: #81c9f2;
 }
 
 .dark-mode #theme-toggle {
