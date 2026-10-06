@@ -233,7 +233,7 @@ countdownInterval = setInterval(() => {
 if (sortPriorityBtn) {
     sortPriorityBtn.addEventListener('click', () => {
         isSortedByPriority = !isSortedByPriority;
-        sortPriorityBtn.textContent = isSortedByPriority ? "Sort: Default 🔄" : "Sort: High to Low 🔽";
+        sortPriorityBtn.textContent = isSortedByPriority ? "Sort: Default " : "Sort: High to Low ";
         renderTasks(currentTasksData);
     });
 }
