@@ -17,6 +17,7 @@ let currentTasksData = [];
 let isSortedByPriority = false;
 let countdownInterval = null;
 const reminderLeadTimeMs = 24 * 60 * 60 * 1000;
+const dueReminderGracePeriodMs = 5 * 60 * 1000;
 const sentReminderKeys = new Set();
 
 // 1. Fetch tasks
@@ -53,12 +54,12 @@ function markReminderSent(key) {
     }
 }
 
-function showInAppReminder(task) {
+function showInAppReminder(task, messageText, reminderKey) {
     const toast = document.createElement('div');
     toast.className = 'reminder-toast';
 
     const message = document.createElement('span');
-    message.textContent = `Due within 24 hours: ${task.task}`;
+    message.textContent = messageText;
 
     const dismissButton = document.createElement('button');
     dismissButton.type = 'button';
@@ -67,8 +68,31 @@ function showInAppReminder(task) {
     dismissButton.addEventListener('click', () => toast.remove());
 
     toast.append(message, dismissButton);
+    toast.dataset.reminderKey = reminderKey;
     notificationArea.appendChild(toast);
     window.setTimeout(() => toast.remove(), 15000);
+}
+
+function sendTaskReminder(task, key, title, message) {
+    if (hasSentReminder(key)) return;
+
+    markReminderSent(key);
+    showInAppReminder(task, message, key);
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+            const notification = new Notification(title, {
+                body: task.task,
+                tag: key
+            });
+            notification.addEventListener('click', () => {
+                window.focus();
+                notification.close();
+            });
+        } catch (error) {
+            console.warn('Could not show system notification:', error);
+        }
+    }
 }
 
 function checkDueDateReminders() {
@@ -79,28 +103,17 @@ function checkDueDateReminders() {
 
         const dueTime = new Date(task.due_date).getTime();
         const timeUntilDue = dueTime - now;
-        if (timeUntilDue <= 0 || timeUntilDue > reminderLeadTimeMs) return;
+        if (timeUntilDue <= 0) {
+            if (timeUntilDue >= -dueReminderGracePeriodMs) {
+                const dueKey = `todo-due-${task.id}-${dueTime}`;
+                sendTaskReminder(task, dueKey, 'Task is due now', `Due now: ${task.task}`);
+            }
+            return;
+        }
+        if (timeUntilDue > reminderLeadTimeMs) return;
 
         const reminderKey = `todo-reminder-${task.id}-${dueTime}`;
-        if (hasSentReminder(reminderKey)) return;
-
-        markReminderSent(reminderKey);
-        showInAppReminder(task);
-
-        if ('Notification' in window && Notification.permission === 'granted') {
-            try {
-                const notification = new Notification('Task due within 24 hours', {
-                    body: task.task,
-                    tag: reminderKey
-                });
-                notification.addEventListener('click', () => {
-                    window.focus();
-                    notification.close();
-                });
-            } catch (error) {
-                console.warn('Could not show system notification:', error);
-            }
-        }
+        sendTaskReminder(task, reminderKey, 'Task due within 24 hours', `Due within 24 hours: ${task.task}`);
     });
 }
 
