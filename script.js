@@ -13,21 +13,8 @@ const sortPriorityBtn = document.getElementById('sort-priority-btn');
 const enableNotificationsBtn = document.getElementById('enable-notifications-btn');
 const notificationArea = document.getElementById('notification-area');
 const themeToggleBtn = document.getElementById('theme-toggle');
-const authPanel = document.getElementById('auth-panel');
-const taskApp = document.getElementById('task-app');
-const authForm = document.getElementById('auth-form');
-const authEmailInput = document.getElementById('auth-email');
-const authPasswordInput = document.getElementById('auth-password');
-const authMessage = document.getElementById('auth-message');
-const authSubmitBtn = document.getElementById('auth-submit-btn');
-const authModeToggle = document.getElementById('auth-mode-toggle');
-const signOutBtn = document.getElementById('sign-out-btn');
 
 let currentTasksData = [];
-let currentUser = null;
-let isCreatingAccount = false;
-let tasksChannel = null;
-let tasksChannelUserId = null;
 let isSortedByPriority = false;
 let countdownInterval = null;
 const reminderLeadTimeMs = 24 * 60 * 60 * 1000;
@@ -63,82 +50,11 @@ if (themeToggleBtn) {
     });
 }
 
-function updateAuthMode() {
-    document.getElementById('auth-title').textContent = isCreatingAccount ? 'Create your account' : 'Sign in to My Tasks';
-    authSubmitBtn.textContent = isCreatingAccount ? 'Create account' : 'Sign in';
-    authModeToggle.textContent = isCreatingAccount ? 'Already have an account? Sign in' : 'Create an account';
-    authPasswordInput.autocomplete = isCreatingAccount ? 'new-password' : 'current-password';
-    authMessage.textContent = '';
-}
-
-function setAuthControlsDisabled(disabled) {
-    authSubmitBtn.disabled = disabled;
-    authModeToggle.disabled = disabled;
-    document.querySelectorAll('[data-auth-provider]').forEach(button => {
-        button.disabled = disabled;
-    });
-}
-
-authModeToggle.addEventListener('click', () => {
-    isCreatingAccount = !isCreatingAccount;
-    updateAuthMode();
-});
-
-authForm.addEventListener('submit', async event => {
-    event.preventDefault();
-    setAuthControlsDisabled(true);
-    authMessage.textContent = '';
-
-    try {
-        const email = authEmailInput.value.trim();
-        const password = authPasswordInput.value;
-        const result = isCreatingAccount
-            ? await supabaseClient.auth.signUp({
-                email,
-                password,
-                options: { emailRedirectTo: window.location.origin }
-            })
-            : await supabaseClient.auth.signInWithPassword({ email, password });
-
-        if (result.error) {
-            authMessage.textContent = result.error.message;
-        } else if (isCreatingAccount && !result.data.session) {
-            authMessage.textContent = 'Check your email to confirm your account, then sign in.';
-        }
-    } catch (error) {
-        authMessage.textContent = error.message || 'Authentication failed. Please try again.';
-    } finally {
-        setAuthControlsDisabled(false);
-    }
-});
-
-document.querySelectorAll('[data-auth-provider]').forEach(button => {
-    button.addEventListener('click', async () => {
-        setAuthControlsDisabled(true);
-        authMessage.textContent = '';
-
-        try {
-            const { error } = await supabaseClient.auth.signInWithOAuth({
-                provider: button.dataset.authProvider,
-                options: { redirectTo: window.location.origin }
-            });
-            if (error) authMessage.textContent = error.message;
-        } catch (error) {
-            authMessage.textContent = error.message || 'Could not start social sign-in.';
-        } finally {
-            setAuthControlsDisabled(false);
-        }
-    });
-});
-
 // 1. Fetch tasks
 async function fetchTasks() {
-    if (!currentUser) return;
-
     const { data, error } = await supabaseClient
         .from('tasks')
         .select('*')
-        .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false });
 
     if (error) {
@@ -269,8 +185,6 @@ setInterval(checkDueDateReminders, 60 * 1000);
 
 // 2. Add task
 async function addTask() {
-    if (!currentUser) return;
-
     const taskText = taskInput.value.trim();
     const priorityValue = prioritySelect.value;
     const dueDateValue = dueDateInput.value ? new Date(dueDateInput.value).toISOString() : null;
@@ -285,8 +199,7 @@ async function addTask() {
             is_completed: false, 
             priority: priorityValue,
             started_at: startedAtValue,
-            due_date: dueDateValue,
-            user_id: currentUser.id
+            due_date: dueDateValue
         }]);
 
     if (error) {
@@ -300,7 +213,6 @@ async function addTask() {
 // 3. Toggle completion
 async function toggleTask(event, id, currentStatus) {
     event.stopPropagation(); 
-    if (!currentUser) return;
     
     const existingTask = currentTasksData.find(task => task.id === id);
     const previousStatus = existingTask ? existingTask.is_completed : currentStatus;
@@ -319,8 +231,7 @@ async function toggleTask(event, id, currentStatus) {
             is_completed: newStatus,
             finished_at: finishedAtValue
         })
-        .eq('id', id)
-        .eq('user_id', currentUser.id);
+        .eq('id', id);
 
     if (error) {
         console.error('Error updating task:', error);
@@ -335,12 +246,10 @@ async function toggleTask(event, id, currentStatus) {
 // 4. Delete task
 async function deleteTask(event, id) {
     event.stopPropagation();
-    if (!currentUser) return;
     const { error } = await supabaseClient
         .from('tasks')
         .delete()
-        .eq('id', id)
-        .eq('user_id', currentUser.id);
+        .eq('id', id);
 
     if (error) {
         console.error('Error deleting task:', error);
@@ -502,55 +411,12 @@ if (taskInput) {
     });
 }
 
-async function updateAuthSession(session) {
-    const nextUser = session?.user ?? null;
-    const nextUserId = nextUser?.id ?? null;
-    const userChanged = currentUser?.id !== nextUserId;
-    currentUser = nextUser;
+// Real-time synchronization subscription
+supabaseClient
+    .channel('public:tasks')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+        fetchTasks();
+    })
+    .subscribe();
 
-    authPanel.hidden = Boolean(currentUser);
-    taskApp.hidden = !currentUser;
-
-    if (!currentUser) {
-        currentTasksData = [];
-        renderTasks(currentTasksData);
-        if (tasksChannel) {
-            await supabaseClient.removeChannel(tasksChannel);
-            tasksChannel = null;
-            tasksChannelUserId = null;
-        }
-        return;
-    }
-
-    if (userChanged && tasksChannel) {
-        await supabaseClient.removeChannel(tasksChannel);
-        tasksChannel = null;
-        tasksChannelUserId = null;
-    }
-
-    if (tasksChannelUserId !== currentUser.id) {
-        tasksChannelUserId = currentUser.id;
-        tasksChannel = supabaseClient
-            .channel(`tasks-${currentUser.id}`)
-            .on('postgres_changes', {
-                event: '*',
-                schema: 'public',
-                table: 'tasks',
-                filter: `user_id=eq.${currentUser.id}`
-            }, () => fetchTasks())
-            .subscribe();
-    }
-
-    await fetchTasks();
-}
-
-signOutBtn.addEventListener('click', async () => {
-    signOutBtn.disabled = true;
-    const { error } = await supabaseClient.auth.signOut();
-    signOutBtn.disabled = false;
-    if (error) window.alert(`Could not sign out: ${error.message}`);
-});
-
-supabaseClient.auth.onAuthStateChange((_event, session) => {
-    window.setTimeout(() => updateAuthSession(session), 0);
-});
+fetchTasks();

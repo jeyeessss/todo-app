@@ -13,25 +13,6 @@
 </head>
 <body>
      <div class="app-container">
-        <section id="auth-panel" class="auth-panel" aria-labelledby="auth-title">
-            <h1 id="auth-title">My Tasks</h1>
-            <p class="auth-intro">Sign in to keep your tasks private and in sync.</p>
-            <div class="auth-providers">
-                <button type="button" class="auth-provider-btn" data-auth-provider="google">Continue with Google</button>
-            </div>
-            <div class="auth-divider"><span>or use email</span></div>
-            <form id="auth-form" class="auth-form">
-                <label for="auth-email">Email</label>
-                <input id="auth-email" type="email" autocomplete="email" required>
-                <label for="auth-password">Password</label>
-                <input id="auth-password" type="password" autocomplete="current-password" minlength="6" required>
-                <p id="auth-message" class="auth-message" role="status" aria-live="polite"></p>
-                <button id="auth-submit-btn" class="auth-submit-btn" type="submit">Sign in</button>
-            </form>
-            <button id="auth-mode-toggle" class="auth-mode-toggle" type="button">Create an account</button>
-        </section>
-
-        <main id="task-app" hidden>
                 <header class="app-header">
                         <h1>My Tasks</h1>
                         <button id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode">&#9790;</button>
@@ -62,14 +43,12 @@
 
         <div class="task-toolbar">
             <button id="enable-notifications-btn" type="button">Enable notifications</button>
-            <button id="sign-out-btn" type="button">Sign out</button>
             <button id="sort-priority-btn" style="padding: 6px 12px; background-color: #e67e22; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">Sort: High to Low </button>
         </div>
 
         <ul id="task-list">
             <!--Task Items-->
         </ul>
-        </main>
      </div>
 
      <script src="script.js"></script>
