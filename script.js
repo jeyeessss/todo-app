@@ -12,6 +12,7 @@ const taskList = document.getElementById('task-list');
 const sortPriorityBtn = document.getElementById('sort-priority-btn');
 const enableNotificationsBtn = document.getElementById('enable-notifications-btn');
 const notificationArea = document.getElementById('notification-area');
+const themeToggleBtn = document.getElementById('theme-toggle');
 
 let currentTasksData = [];
 let isSortedByPriority = false;
@@ -19,6 +20,35 @@ let countdownInterval = null;
 const reminderLeadTimeMs = 24 * 60 * 60 * 1000;
 const dueReminderGracePeriodMs = 5 * 60 * 1000;
 const sentReminderKeys = new Set();
+
+function updateThemeToggle() {
+    const isDarkMode = document.documentElement.classList.contains('dark-mode');
+    const label = isDarkMode ? 'Switch to light mode' : 'Switch to dark mode';
+    themeToggleBtn.textContent = isDarkMode ? '\u2600' : '\u263e';
+    themeToggleBtn.setAttribute('aria-label', label);
+    themeToggleBtn.title = label;
+}
+
+try {
+    if (localStorage.getItem('todo-theme') === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+    }
+} catch {
+    // The theme toggle still works for this page when storage is unavailable.
+}
+
+if (themeToggleBtn) {
+    updateThemeToggle();
+    themeToggleBtn.addEventListener('click', () => {
+        const isDarkMode = document.documentElement.classList.toggle('dark-mode');
+        try {
+            localStorage.setItem('todo-theme', isDarkMode ? 'dark' : 'light');
+        } catch {
+            // Keep the selected theme until the page is closed.
+        }
+        updateThemeToggle();
+    });
+}
 
 // 1. Fetch tasks
 async function fetchTasks() {

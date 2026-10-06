@@ -6,7 +6,7 @@
 }
 
 body {
-    background-color: #f4f7f6;
+    background-color: #c6c6c6;
     color: #333;
     display: flex;
     justify-content: center;
@@ -29,6 +29,32 @@ h1 {
     margin-bottom: 20px;
     text-align: center;
     color: #2c3e50;
+}
+
+.app-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.app-header h1 {
+    grid-column: 2;
+    margin-bottom: 0;
+}
+
+#theme-toggle {
+    grid-column: 3;
+    justify-self: end;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #d8dee3;
+    border-radius: 6px;
+    background: #f4f7f6;
+    color: #34424b;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
 }
 
 .input-container {
@@ -283,4 +309,118 @@ li.expanded .task-details {
 .countdown-overdue {
     background-color: #fee2e2;
     color: #dc2626;
+}
+
+:root.dark-mode {
+    color-scheme: dark;
+}
+
+.dark-mode body {
+    background-color: #121619;
+    color: #e1e7eb;
+}
+
+.dark-mode .app-container {
+    background: #1c2226;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.28);
+}
+
+.dark-mode h1 {
+    color: #edf2f5;
+}
+
+.dark-mode #theme-toggle {
+    border-color: #48545c;
+    background: #2a3339;
+    color: #f6d778;
+}
+
+.dark-mode .task-option label {
+    color: #c0cbd1;
+}
+
+.dark-mode #task-input,
+.dark-mode .task-option input,
+.dark-mode .task-option select {
+    border-color: #48545c;
+    background: #242c31;
+    color: #edf2f5;
+}
+
+.dark-mode #priority-select {
+    border-color: #48545c;
+    background: #242c31;
+    color: #edf2f5;
+}
+
+.dark-mode #task-list li {
+    border-color: #343e44;
+    background-color: #232b30;
+    color: #e1e7eb;
+}
+
+.dark-mode #task-list li.completed {
+    background-color: #20272b;
+}
+
+.dark-mode #task-list li.completed .task-text-span {
+    color: #9aa8af;
+}
+
+.dark-mode #task-list .slide-toggle-btn {
+    background-color: #354047 !important;
+    color: #e1e7eb !important;
+}
+
+.dark-mode .task-details {
+    background: #2a343a;
+    color: #ccd5da;
+}
+
+.dark-mode .priority-high {
+    border-color: #754148;
+    background-color: #43282c;
+    color: #ff9da4;
+}
+
+.dark-mode .priority-medium {
+    border-color: #715a32;
+    background-color: #3d3422;
+    color: #f6cd77;
+}
+
+.dark-mode .priority-low {
+    border-color: #3a694b;
+    background-color: #23382b;
+    color: #9de0ad;
+}
+
+.dark-mode .countdown-badge {
+    background-color: #34434c;
+    color: #d8e7ef;
+}
+
+.dark-mode .countdown-overdue {
+    background-color: #482c30;
+    color: #ffaaaa;
+}
+
+.dark-mode .reminder-toast {
+    border-left-color: #f0a044;
+    background: #3b321d;
+    color: #f5e7c2;
+}
+
+.dark-mode .reminder-toast button {
+    color: #f5e7c2;
+}
+
+.dark-mode #enable-notifications-btn {
+    border-color: #3b6948;
+    background: #243a2a;
+    color: #b7e6c1;
+}
+
+.dark-mode .live-countdown {
+    color: #91c9ee !important;
 }

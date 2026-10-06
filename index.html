@@ -10,8 +10,11 @@
 </head>
 <body>
      <div class="app-container">
-        <h1>My Tasks</h1>
-          <div id="notification-area" class="notification-area" aria-live="polite"></div>
+                <header class="app-header">
+                        <h1>My Tasks</h1>
+                        <button id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode">&#9790;</button>
+                </header>
+                <div id="notification-area" class="notification-area" aria-live="polite"></div>
 
         <div class="input-container" style="display: flex; flex-direction: column; gap: 8px;">
             <input type="text" id="task-input" placeholder="What needs to be done?">
