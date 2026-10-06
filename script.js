@@ -291,13 +291,10 @@ async function addTask() {
 
     if (error) {
         console.error('Error adding task:', error);
-        window.alert(`Could not add task: ${error.message || error.code || 'Unknown Supabase error'}`);
-        return;
+    } else {
+        taskInput.value = '';
+        dueDateInput.value = '';
     }
-
-    taskInput.value = '';
-    dueDateInput.value = '';
-    await fetchTasks();
 }
 
 // 3. Toggle completion
@@ -339,25 +336,14 @@ async function toggleTask(event, id, currentStatus) {
 async function deleteTask(event, id) {
     event.stopPropagation();
     if (!currentUser) return;
-
-    const userId = currentUser.id;
-    const deletedTask = currentTasksData.find(task => task.id === id);
-    currentTasksData = currentTasksData.filter(task => task.id !== id);
-    renderTasks(currentTasksData);
-
     const { error } = await supabaseClient
         .from('tasks')
         .delete()
         .eq('id', id)
-        .eq('user_id', userId);
+        .eq('user_id', currentUser.id);
 
     if (error) {
         console.error('Error deleting task:', error);
-        if (deletedTask && currentUser?.id === userId) {
-            currentTasksData = [...currentTasksData, deletedTask];
-            renderTasks(currentTasksData);
-        }
-        window.alert(`Could not delete task: ${error.message || error.code || 'Unknown Supabase error'}`);
     }
 }
 
