@@ -10,10 +10,14 @@ const prioritySelect = document.getElementById('priority-select');
 const addBtn = document.getElementById('add-btn');
 const taskList = document.getElementById('task-list');
 const sortPriorityBtn = document.getElementById('sort-priority-btn');
+const enableNotificationsBtn = document.getElementById('enable-notifications-btn');
+const notificationArea = document.getElementById('notification-area');
 
 let currentTasksData = [];
 let isSortedByPriority = false;
 let countdownInterval = null;
+const reminderLeadTimeMs = 24 * 60 * 60 * 1000;
+const sentReminderKeys = new Set();
 
 // 1. Fetch tasks
 async function fetchTasks() {
@@ -28,7 +32,113 @@ async function fetchTasks() {
     }
     currentTasksData = data || [];
     renderTasks(currentTasksData);
+    checkDueDateReminders();
 }
+
+function hasSentReminder(key) {
+    if (sentReminderKeys.has(key)) return true;
+    try {
+        return localStorage.getItem(key) === 'sent';
+    } catch {
+        return false;
+    }
+}
+
+function markReminderSent(key) {
+    sentReminderKeys.add(key);
+    try {
+        localStorage.setItem(key, 'sent');
+    } catch {
+        // Keep the in-memory guard when browser storage is unavailable.
+    }
+}
+
+function showInAppReminder(task) {
+    const toast = document.createElement('div');
+    toast.className = 'reminder-toast';
+
+    const message = document.createElement('span');
+    message.textContent = `Due within 24 hours: ${task.task}`;
+
+    const dismissButton = document.createElement('button');
+    dismissButton.type = 'button';
+    dismissButton.textContent = 'Dismiss';
+    dismissButton.setAttribute('aria-label', `Dismiss reminder for ${task.task}`);
+    dismissButton.addEventListener('click', () => toast.remove());
+
+    toast.append(message, dismissButton);
+    notificationArea.appendChild(toast);
+    window.setTimeout(() => toast.remove(), 15000);
+}
+
+function checkDueDateReminders() {
+    const now = Date.now();
+
+    currentTasksData.forEach(task => {
+        if (task.is_completed || !task.due_date) return;
+
+        const dueTime = new Date(task.due_date).getTime();
+        const timeUntilDue = dueTime - now;
+        if (timeUntilDue <= 0 || timeUntilDue > reminderLeadTimeMs) return;
+
+        const reminderKey = `todo-reminder-${task.id}-${dueTime}`;
+        if (hasSentReminder(reminderKey)) return;
+
+        markReminderSent(reminderKey);
+        showInAppReminder(task);
+
+        if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+                const notification = new Notification('Task due within 24 hours', {
+                    body: task.task,
+                    tag: reminderKey
+                });
+                notification.addEventListener('click', () => {
+                    window.focus();
+                    notification.close();
+                });
+            } catch (error) {
+                console.warn('Could not show system notification:', error);
+            }
+        }
+    });
+}
+
+function updateNotificationsButton() {
+    if (!('Notification' in window)) {
+        enableNotificationsBtn.textContent = 'Notifications unavailable';
+        enableNotificationsBtn.disabled = true;
+        return;
+    }
+
+    if (Notification.permission === 'granted') {
+        enableNotificationsBtn.textContent = 'Notifications enabled';
+        enableNotificationsBtn.disabled = true;
+    } else if (Notification.permission === 'denied') {
+        enableNotificationsBtn.textContent = 'Allow in browser settings';
+        enableNotificationsBtn.disabled = true;
+    }
+}
+
+if (enableNotificationsBtn) {
+    enableNotificationsBtn.addEventListener('click', async () => {
+        if (!('Notification' in window)) {
+            updateNotificationsButton();
+            return;
+        }
+
+        try {
+            await Notification.requestPermission();
+            updateNotificationsButton();
+            checkDueDateReminders();
+        } catch (error) {
+            console.error('Could not request notification permission:', error);
+        }
+    });
+    updateNotificationsButton();
+}
+
+setInterval(checkDueDateReminders, 60 * 1000);
 
 // 2. Add task
 async function addTask() {
